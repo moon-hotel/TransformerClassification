@@ -68,6 +68,7 @@ class LoadSentenceClassificationDataset():
                  batch_size=2,
                  min_freq=1,  # 最小词频，去掉小于min_freq的词
                  max_sen_len='same'):  # 最大句子长度，默认设置其长度为整个数据集中最长样本的长度
+        # max_sen_len = None时，表示按每个batch中最长的样本长度进行padding
         # 根据训练预料建立英语和德语各自的字典
         self.tokenizer = tokenizer
         self.min_freq = min_freq
@@ -109,7 +110,7 @@ class LoadSentenceClassificationDataset():
                                 shuffle=True, collate_fn=self.generate_batch)
         test_iter = DataLoader(test_data, batch_size=self.batch_size,
                                shuffle=True, collate_fn=self.generate_batch)
-        return train_iter, valid_iter, test_iter
+        return train_iter, test_iter
 
     def generate_batch(self, data_batch):
         batch_sentence, batch_label = [], []
@@ -128,7 +129,7 @@ if __name__ == '__main__':
     path = "./data/ag_news_csv/test.csv"
     data_loader = LoadSentenceClassificationDataset(train_file_path=path,
                                                     tokenizer=my_tokenizer)
-    train_iter, valid_iter, test_iter = data_loader.load_train_val_test_data(path, path)
+    train_iter, test_iter = data_loader.load_train_val_test_data(path, path)
     for sample, label in train_iter:
         print(sample.shape)  # [seq_len,batch_size]
         print(label.shape)  # [batch_size]
