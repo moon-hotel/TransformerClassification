@@ -10,6 +10,24 @@ def my_tokenizer(s):
     return s.split()
 
 
+def clean_str(string):
+    string = re.sub("[^A-Za-z0-9\-\?\!\.\,]", " ", string).lower()
+    string = string.replace("that's", "that is")
+    string = string.replace("isn't", "is not")
+    string = string.replace("don't", "do not")
+    string = string.replace("didn't", "did not")
+    string = string.replace("won't", "will not")
+    string = string.replace("can't", "can not")
+    string = string.replace("you're", "you are")
+    string = string.replace("they're", "they are")
+    string = string.replace("you'll", "you will")
+    string = string.replace("we'll", "we will")
+    string = string.replace("what's", "what is")
+    string = string.replace("i'm", "i am")
+    string = string.replace("let's", "let us")
+    return string
+
+
 def build_vocab(tokenizer, filepath, min_freq, specials=None):
     """
     根据给定的tokenizer和对应参数返回一个Vocab类
@@ -25,8 +43,8 @@ def build_vocab(tokenizer, filepath, min_freq, specials=None):
     counter = Counter()
     with open(filepath, encoding='utf8') as f:
         for string_ in f:
-            string_ = string_.strip().split('","')[-1][:-1]
-            counter.update(tokenizer(string_))
+            string_ = string_.strip().split('","')[-1][:-1] # 取标签和新闻描述
+            counter.update(tokenizer(clean_str(string_)))
     return Vocab(counter, min_freq=min_freq, specials=specials)
 
 
@@ -65,11 +83,11 @@ def pad_sequence(sequences, batch_first=False, max_len=None, padding_value=0):
 class LoadSentenceClassificationDataset():
     def __init__(self, train_file_path=None,  # 训练集路径
                  tokenizer=None,
-                 batch_size=2,
+                 batch_size=20,
                  min_freq=1,  # 最小词频，去掉小于min_freq的词
                  max_sen_len='same'):  # 最大句子长度，默认设置其长度为整个数据集中最长样本的长度
         # max_sen_len = None时，表示按每个batch中最长的样本长度进行padding
-        # 根据训练预料建立英语和德语各自的字典
+        # 根据训练预料建立字典
         self.tokenizer = tokenizer
         self.min_freq = min_freq
         self.specials = ['<unk>', '<pad>']
@@ -88,23 +106,6 @@ class LoadSentenceClassificationDataset():
         :param filepath: 数据集路径
         :return:
         """
-
-        def clean_str(string):
-            string = re.sub("[^A-Za-z\-\?\!\.\,]", " ", string).lower()
-            string = string.replace("that's", "that is")
-            string = string.replace("isn't", "is not")
-            string = string.replace("don't", "do not")
-            string = string.replace("did't", "did not")
-            string = string.replace("won't", "will not")
-            string = string.replace("can't", "can not")
-            string = string.replace("you're", "you are")
-            string = string.replace("they're", "they are")
-            string = string.replace("you'll", "you will")
-            string = string.replace("we'll", "we will")
-            string = string.replace("what's", "what is")
-            string = string.replace("i'm", "i am")
-            string = string.replace("let's", "let us")
-            return string
 
         raw_iter = iter(open(filepath, encoding="utf8"))
         data = []
@@ -150,13 +151,6 @@ if __name__ == '__main__':
                                                     tokenizer=my_tokenizer,
                                                     max_sen_len=None)
     data, max_len = data_loader.data_process(path)
-
-    # train_iter, test_iter = data_loader.load_train_val_test_data(path, path)
-    # i = 0
-    # print(len(train_iter))
-    # for sample, label in train_iter:
-    #     print(sample.shape)  # [seq_len,batch_size]
-    #     print(label.shape)  # [batch_size]
-    #     if i == 5:
-    #         break
-    #     i += 1
+    train_iter, test_iter = data_loader.load_train_val_test_data(path, path)
+    for sample, label in train_iter:
+        print(sample.shape)  # [seq_len,batch_size]
