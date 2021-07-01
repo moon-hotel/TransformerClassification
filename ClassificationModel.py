@@ -35,9 +35,12 @@ class ClassificationModel(nn.Module):
         src_embed = self.pos_embedding(src_embed)  # [src_len, batch_size, embed_dim]
         memory = self.encoder(src=src_embed,
                               mask=src_mask,
-                              src_key_padding_mask=src_key_padding_mask)  # [src_len,batch_size,embed_dim]
+                              src_key_padding_mask=src_key_padding_mask)
+        # [src_len,batch_size,embed_dim]
         if concat_type == 'sum':
             memory = torch.sum(memory, dim=0)
+        elif concat_type == 'avg':
+            memory = torch.sum(memory, dim=0) / memory.size(0)
         else:
             memory = memory[-1, ::]  # 取最后一个时刻
         # [src_len, batch_size, num_heads * kdim] <==> [src_len,batch_size,embed_dim]
