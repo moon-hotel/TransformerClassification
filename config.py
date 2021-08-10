@@ -33,7 +33,6 @@ class Config():
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.epochs = 10
         self.model_save_dir = os.path.join(self.project_dir, 'cache')
-        self.train_info_per_batch = 30
         self.model_save_per_epoch = 2
         if not os.path.exists(self.model_save_dir):
             os.makedirs(self.model_save_dir)
