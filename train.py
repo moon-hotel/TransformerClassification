@@ -79,8 +79,7 @@ def train_model(config):
                     f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], Train loss :{loss.item():.3f}, Train acc: {acc:.3f}")
         end_time = time.time()
         train_loss = losses / len(train_iter)
-        if (idx + 1) % config.train_info_per_batch == 0:
-            print(f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Epoch time = {(end_time - start_time):.3f}s")
+        print(f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Epoch time = {(end_time - start_time):.3f}s")
         if (epoch + 1) % config.model_save_per_epoch == 0:
             acc = evaluate(test_iter, classification_model, config.device)
             print(f"Accuracy on test {acc:.3f}")
