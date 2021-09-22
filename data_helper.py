@@ -1,30 +1,19 @@
 from collections import Counter
 from torchtext.vocab import Vocab
 from torch.utils.data import DataLoader
+from torchtext.data.utils import get_tokenizer
 import torch
 import re
+from tqdm import tqdm
 
 
 def my_tokenizer(s):
-    s = s.replace(',', " ,").replace(".", " .").replace("?", " ?").replace("!", " !")
-    return s.split()
+    tokenizer = get_tokenizer('spacy', language='en_core_web_sm')
+    return tokenizer(s)
 
 
 def clean_str(string):
     string = re.sub("[^A-Za-z0-9\-\?\!\.\,]", " ", string).lower()
-    string = string.replace("that's", "that is")
-    string = string.replace("isn't", "is not")
-    string = string.replace("don't", "do not")
-    string = string.replace("didn't", "did not")
-    string = string.replace("won't", "will not")
-    string = string.replace("can't", "can not")
-    string = string.replace("you're", "you are")
-    string = string.replace("they're", "they are")
-    string = string.replace("you'll", "you will")
-    string = string.replace("we'll", "we will")
-    string = string.replace("what's", "what is")
-    string = string.replace("i'm", "i am")
-    string = string.replace("let's", "let us")
     return string
 
 
@@ -42,8 +31,8 @@ def build_vocab(tokenizer, filepath, min_freq, specials=None):
         specials = ['<unk>', '<pad>']
     counter = Counter()
     with open(filepath, encoding='utf8') as f:
-        for string_ in f:
-            string_ = string_.strip().split('","')[-1][:-1] # 取标签和新闻描述
+        for string_ in tqdm(f):
+            string_ = string_.strip().split('","')[-1][:-1]  # 取标签和新闻描述
             counter.update(tokenizer(clean_str(string_)))
     return Vocab(counter, min_freq=min_freq, specials=specials)
 
