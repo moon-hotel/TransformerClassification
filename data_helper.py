@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 
 def my_tokenizer(s):
-    tokenizer = get_tokenizer('spacy', language='en_core_web_sm')
+    tokenizer = get_tokenizer('basic_english')
     return tokenizer(s)
 
 
@@ -99,7 +99,7 @@ class LoadSentenceClassificationDataset():
         raw_iter = iter(open(filepath, encoding="utf8"))
         data = []
         max_len = 0
-        for raw in raw_iter:
+        for raw in tqdm(raw_iter):
             line = raw.rstrip("\n").split('","')
             s, l = line[-1][:-1], line[0][1:]
             s = clean_str(s)
