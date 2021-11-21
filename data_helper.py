@@ -96,10 +96,10 @@ class LoadSentenceClassificationDataset():
         :return:
         """
 
-        raw_iter = iter(open(filepath, encoding="utf8"))
+        raw_iter = open(filepath,encoding='utf8').readlines()
         data = []
         max_len = 0
-        for raw in tqdm(raw_iter):
+        for raw in tqdm(raw_iter, ncols=80):
             line = raw.rstrip("\n").split('","')
             s, l = line[-1][:-1], line[0][1:]
             s = clean_str(s)
