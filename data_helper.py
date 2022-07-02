@@ -32,7 +32,7 @@ def build_vocab(tokenizer, filepath, min_freq, specials=None):
     counter = Counter()
     with open(filepath, encoding='utf8') as f:
         for string_ in tqdm(f):
-            string_ = string_.strip().split('","')[-1][:-1]  # 取标签和新闻描述
+            string_ = string_.strip().split('","')[-1][:-1]  # 新闻描述
             counter.update(tokenizer(clean_str(string_)))
     return Vocab(counter, min_freq=min_freq, specials=specials)
 
