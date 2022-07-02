@@ -5,7 +5,7 @@ import torch.nn as nn
 import copy
 import torch
 
-is_print_shape = True
+is_print_shape = False
 
 
 class MyTransformer(nn.Module):
