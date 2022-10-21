@@ -5,6 +5,7 @@ from data_helper import LoadSentenceClassificationDataset, my_tokenizer
 from ClassificationModel import ClassificationModel
 import os
 import time
+from copy import deepcopy
 
 
 class CustomSchedule(nn.Module):
@@ -86,7 +87,8 @@ def train_model(config):
             print(f"Accuracy on test {acc:.3f}, max acc on test {max_test_acc:.3f}")
             if acc > max_test_acc:
                 max_test_acc = acc
-                torch.save(classification_model.state_dict(), model_save_path)
+                state_dict = deepcopy(classification_model.state_dict())
+                torch.save(state_dict, model_save_path)
 
 
 def evaluate(data_iter, model, device):
