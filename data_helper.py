@@ -1,9 +1,9 @@
-from collections import Counter
-from torchtext.vocab import Vocab
+import re
+
+import torch
 from torch.utils.data import DataLoader
 from torchtext.data.utils import get_tokenizer
-import torch
-import re
+from torchtext.vocab import build_vocab_from_iterator
 from tqdm import tqdm
 
 
@@ -29,12 +29,18 @@ def build_vocab(tokenizer, filepath, min_freq, specials=None):
     """
     if specials is None:
         specials = ['<unk>', '<pad>']
-    counter = Counter()
-    with open(filepath, encoding='utf8') as f:
-        for string_ in tqdm(f):
-            string_ = string_.strip().split('","')[-1][:-1]  # 新闻描述
-            counter.update(tokenizer(clean_str(string_)))
-    return Vocab(counter, min_freq=min_freq, specials=specials)
+
+    def yield_tokens(filepath):
+        with open(filepath, encoding='utf8') as f:
+            for string_ in f:
+                yield tokenizer(string_)
+
+    vocab_obj = build_vocab_from_iterator(yield_tokens(
+        filepath), specials=specials, min_freq=min_freq)
+
+    vocab_obj.set_default_index(vocab_obj['<unk>'])
+
+    return vocab_obj
 
 
 def pad_sequence(sequences, batch_first=False, max_len=None, padding_value=0):
@@ -96,7 +102,7 @@ class LoadSentenceClassificationDataset():
         :return:
         """
 
-        raw_iter = open(filepath,encoding='utf8').readlines()
+        raw_iter = open(filepath, encoding='utf8').readlines()
         data = []
         max_len = 0
         for raw in tqdm(raw_iter, ncols=80):
@@ -111,7 +117,8 @@ class LoadSentenceClassificationDataset():
         return data, max_len
 
     def load_train_val_test_data(self, train_file_paths, test_file_paths):
-        train_data, max_sen_len = self.data_process(train_file_paths)  # 得到处理好的所有样本
+        train_data, max_sen_len = self.data_process(
+            train_file_paths)  # 得到处理好的所有样本
         if self.max_sen_len == 'same':
             self.max_sen_len = max_sen_len
         test_data, _ = self.data_process(test_file_paths)
